@@ -24,18 +24,24 @@ Cliente::Cliente(std::string _identificador, std::string _nombreC, std::string _
 Cliente::~Cliente()
 {
 }
-
+// RECORDAR
+// PRODUCTOS SIRVE COMO CARRITO DE COMPRAS
 void Cliente::imprimirCliente()
 {
 	std::cout << "identificador: " << identificador << std::endl;
 	std::cout << "nombre cliente: " << nombreC << std::endl;
 	std::cout << "correo cliente: " << correoElectronico << std::endl;
 	std::cout << "telefono:" << telefono << std::endl;
-	std::cout << "Productos: " << std::endl;
-	for(Producto producto: productos){
-		producto.imprimir();
+	if (productos.size() > 0) {
+		std::cout << "Productos Seleccionados: " << std::endl;
+		for (Producto producto : productos) {
+			producto.imprimir();
+		}
+		std::cout << "----------" << std::endl;
 	}
-	std::cout << "----------" << std::endl;
+	else {
+		std::cout << "Lo invitamos a visitar nuestra tienda! Grandes ofertas tenemos!" << std::endl;
+	}
 	std::cout << "total: " << totalCompra << std::endl;
 }
 
