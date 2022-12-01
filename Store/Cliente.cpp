@@ -28,6 +28,7 @@ Cliente::~Cliente()
 // PRODUCTOS SIRVE COMO CARRITO DE COMPRAS
 void Cliente::imprimirCliente()
 {
+	double totalCompradoPorCliente = 0;
 	std::cout << "identificador: " << identificador << std::endl;
 	std::cout << "nombre cliente: " << nombreC << std::endl;
 	std::cout << "correo cliente: " << correoElectronico << std::endl;
@@ -35,6 +36,7 @@ void Cliente::imprimirCliente()
 	if (productos.size() > 0) {
 		std::cout << "Productos Seleccionados: " << std::endl;
 		for (Producto producto : productos) {
+			totalCompradoPorCliente += producto.getCantidad() * producto.getPrecioP();
 			producto.imprimir();
 		}
 		std::cout << "----------" << std::endl;
@@ -42,7 +44,8 @@ void Cliente::imprimirCliente()
 	else {
 		std::cout << "Lo invitamos a visitar nuestra tienda! Grandes ofertas tenemos!" << std::endl;
 	}
-	std::cout << "total: " << totalCompra << std::endl;
+	setTotalCompra(totalCompradoPorCliente);
+	std::cout << "total: " << totalCompradoPorCliente << std::endl;
 }
 
 std::string Cliente::getIdentificador()

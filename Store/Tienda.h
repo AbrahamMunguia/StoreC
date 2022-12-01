@@ -42,7 +42,7 @@ class Tienda
 		// CUSTOMS
 		void imprimirTienda();
 		// AGREGA PRODUCTOS DESDE ARCHIVO
-		void agregarProductos();
+		void agregarProductos(std::string nombreDelArchivo);
 		// AGREGA PRODUCTO MANUALMENTE
 		void agregarProducto();
 		// AGREGA CLIENTE

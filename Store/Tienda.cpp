@@ -147,10 +147,10 @@ void Tienda::imprimirTienda()
     std::cout << "Corte de caja (Cierre de dia): " << getIngresoDiario() << std::endl;
 }
 
-void Tienda::agregarProductos()
+void Tienda::agregarProductos(std::string nombreDelArchivo)
 {
     // Nombre del archivo
-    std::string nombreArchivo = "DatosProductos.txt";
+    std::string nombreArchivo = nombreDelArchivo;
     // ifstream para cargar el archivo
     std::ifstream archivo(nombreArchivo.c_str());
     // fila de archivo, o linea antes del enter
@@ -179,6 +179,7 @@ void Tienda::agregarProductos()
     if (getProductos().size() > 0) {
         coleccionDeProductos = getProductos();
     }
+    int totalProductos = getCantidadProductosT();
     // tercer y ultimo ciclo
     // sabiendo que nuestro txt son 4 campos (nombre, categoria, precio, cantidad)
     // podemos hacer una iteracion de 4 en 4, dado que ya sabemos que espacio pertenencen
@@ -204,6 +205,7 @@ void Tienda::agregarProductos()
                     coleccionDeProductos[y_iteracion].setCantidad(std::stoi(cantidad));
                     coleccionDeProductos[y_iteracion].setPrecioP(std::stof(precio));
                     repetido = true;
+                    totalProductos += std::stoi(cantidad);
                     break;
                 }
             }
@@ -211,8 +213,10 @@ void Tienda::agregarProductos()
         if (!repetido) {
             Producto productoBasadoDatos(categoria + nombre, nombre, std::stoi(categoria), std::stof(precio), std::stoi(cantidad));
             coleccionDeProductos.push_back(productoBasadoDatos);
+            totalProductos = std::stoi(cantidad);
         }
     }
+    setCantidadProductosT(totalProductos);
     setProductos(coleccionDeProductos);
 }
 
@@ -277,6 +281,7 @@ void Tienda::agregarProducto()
     else {
         setProductos({ nuevoProducto });
     }
+    setCantidadProductosT(cantidad + getCantidadProductosT());
     return ;
 }
 
@@ -300,6 +305,7 @@ void Tienda::agregarCliente()
     std::vector<Cliente> coleccionDeClientesActualizada = getClientes();
     coleccionDeClientesActualizada.push_back(clienteNuevo);
     setClientes(coleccionDeClientesActualizada);
+    setCantidadClientesT(getCantidadClientesT() + 1);
 }
 
 void Tienda::llenarCarrito()
@@ -312,9 +318,12 @@ void Tienda::llenarCarrito()
     std::cout << "Ingrese su identificador" << std::endl;
     std::cin >> identificador;
     int existe = 0;
-    for (Cliente filtro: getClientes()) {
-        if (filtro.getIdentificador() == identificador) {
+    int posicion = 0;
+    for (int iteracion = 0; iteracion < getClientes().size(); iteracion++) {
+        Cliente item = getClientes()[iteracion];
+        if (item.getIdentificador() == identificador) {
             existe = 1;
+            posicion = iteracion;
             break;
         }
     }
@@ -324,6 +333,8 @@ void Tienda::llenarCarrito()
     }
     int menuOpcion = 0;
     int salir = 0;
+    std::vector<std::string> idsAComprar{};
+    std::vector<int> cantidadesAComprar{};
     std::vector<Producto> listaDeProductos = getProductos();
     while (salir == 0) {
         std::cout << "*************************" << std::endl;
@@ -337,25 +348,115 @@ void Tienda::llenarCarrito()
         std::cout << "6- Salir" << std::endl;
         std::cin >> menuOpcion;
         if (menuOpcion >= 0 && menuOpcion <= 5) {
+            std::string temporalId = "";
+            int temporalCantidad = 0;
+            std::cout << "Identificador - Nombre - Cantidad - Precio" << std::endl;
             for (Producto producto : listaDeProductos) {
                 if (producto.getCategoriaP() == menuOpcion) {
-                    std::cout << producto.getNombreP() << "..." << producto.getCantidad() << "..." << producto.getPrecioP() << std::endl;
+                    std::cout << producto.getClave() << "..." << producto.getNombreP() << "..." << producto.getCantidad() << "..." << producto.getPrecioP() << std::endl;
                 }
             }
+            std::cout << "Escriba el id del producto" << std::endl;
+            std::cin >> temporalId;
+            std::cout << "Escriba la cantidad del producto" << std::endl;
+            std::cin >> temporalCantidad;
+            idsAComprar.push_back(temporalId);
+            cantidadesAComprar.push_back(temporalCantidad);
         }
-        else if(menuOpcion == 6){
+        else if (menuOpcion == 6) {
             salir = 1;
         }
         else {
             std::cout << "Opcion No Valida." << std::endl;
         }
     }
+    std::vector<Producto> shoppingList;
+    for (int iteracion = 0; iteracion < cantidadesAComprar.size(); iteracion++) {
+        for (Producto producto : listaDeProductos) {
+            if (producto.getClave() == idsAComprar[iteracion]) {
+                Producto objetoComprar(producto);
+                objetoComprar.setCantidad(cantidadesAComprar[iteracion]);
+                shoppingList.push_back(objetoComprar);
+                break;
+            }
+        }
+    }
+    std::vector<Cliente> clienteActualizados;
+    for(Cliente cliente: getClientes()){
+        if (cliente.getIdentificador() == identificador)
+        {
+            std::vector<Producto> productosDelCliente = cliente.getProductos();
+            productosDelCliente.insert(productosDelCliente.end(), shoppingList.begin(), shoppingList.end());
+            cliente.setProductos(productosDelCliente);
+        }
+        clienteActualizados.push_back(cliente);
+    }
+    setClientes(clienteActualizados);
 }
 
 void Tienda::imprimirTicketCompra()
 {
+    if (getClientes().size() == 0) {
+        std::cout << "Ningun cliente registrado, regresando al menu anterior." << std::endl;
+        return;
+    }
+    std::string identificador = "";
+    std::cout << "Ingrese su identificador" << std::endl;
+    std::cin >> identificador;
+    int existe = 0;
+    int posicion = 0;
+    for (int iteracion = 0; iteracion < getClientes().size(); iteracion++) {
+        Cliente item = getClientes()[iteracion];
+        if (item.getIdentificador() == identificador) {
+            existe = 1;
+            posicion = iteracion;
+            break;
+        }
+    }
+    if (existe == 0) {
+        std::cout << "Ningun cliente registrado, regresando al menu anterior." << std::endl;
+        return;
+    }
+    std::vector<Producto> productosTienda;
+    std::vector<Cliente> clienteData;
+    // Imprimimos recibo de pago, actualizamos el stock de la tienda, limpiamos usuario-carrito
+    for (Cliente clientePagando : getClientes()) {
+        double grandTotal = 0;
+        if (clientePagando.getIdentificador() == identificador) {
+            std::cout << "Articulo" << "Cantidad" << "Precio Unitario" << std::endl;
+            for (Producto producto : clientePagando.getProductos()) {
+                grandTotal += producto.getCantidad() * producto.getPrecioP();
+                std::cout << producto.getNombreP() << "..." << producto.getCantidad() << "..." << producto.getPrecioP() << "..." << producto.getCantidad() * producto.getPrecioP() << std::endl;
+                for (Producto stock : getProductos()) {
+                    if (stock.getClave() == producto.getClave()) {
+                        stock.setCantidad(stock.getCantidad() - producto.getCantidad());
+                    }
+                    productosTienda.push_back(stock);
+                }
+            }
+            std::cout << "TOTAL.........................." << grandTotal << std::endl;
+            setIngresoDiario(getIngresoDiario() + grandTotal);
+            std::vector<Producto> resetProducts;
+            clientePagando.setProductos(resetProducts);
+            clientePagando.setTotalCompra(0);
+        }
+        clienteData.push_back(clientePagando);
+    }
+    int contador = 0;
+    for (Producto tiendaConteos : productosTienda) {
+        contador += tiendaConteos.getCantidad();
+    }
+    setCantidadProductosT(contador);
+    setProductos(productosTienda);
+    setClientes(clienteData);
 }
 
 void Tienda::cerrarOperaciones()
 {
+    std::cout << "Cierre de Caja" << std::endl;
+    std::cout << "-----------------------" << std::endl;
+    std::cout << "INVENTARIO FINALIZADO EL DIA:" << std::endl;
+    imprimirTienda();
+    std::cout << "-----------------------" << std::endl;
+    std::cout << "TOTAL GANADO EN EL DIA.........................." << getIngresoDiario() << std::endl;
 }

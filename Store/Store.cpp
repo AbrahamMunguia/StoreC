@@ -9,14 +9,13 @@
 
 using namespace std;
 
-int menu() {
-    Tienda oxxo;
+int menu(string id, string nombreTienda, string nombreArchivo, string direccion) {
+    Tienda tiendaPersonal(id, nombreTienda, direccion, 0, 0, {}, {},0);
     int opcionMenu = 0;
     bool lecturaArchivo = false;
     int salir = 0;
-    // Producto productoSample("1manzanas", "manzanas", 8, 1500, 5);
     while (salir == 0) {
-        cout << "Bienvenido al sistema administrativo!" << endl;
+        cout << "Bienvenido a su sucursal: " << tiendaPersonal.getNombre() << endl;
         cout << "Digite la opcion deseada para ir al submenu" << endl;
         cout << "1- Agregar Productos Desde Archivo" << endl;
         cout << "2- Agregar Productos Uno a Uno" << endl;
@@ -31,10 +30,9 @@ int menu() {
             system("CLS");
             if(!lecturaArchivo){
                 cout << "Agregando datos desde el archivo..." << endl;
-                // oxxo.setProductos({productoSample});
-                oxxo.agregarProductos();
+                tiendaPersonal.agregarProductos(nombreArchivo);
                 lecturaArchivo = true;
-                oxxo.imprimirTienda();
+                tiendaPersonal.imprimirTienda();
             }
             else {
                 cout << "Ya se agrego desde el archivo. Solo es posible una vez por instancia" << endl;
@@ -42,21 +40,24 @@ int menu() {
             break;
         case 2:
             system("CLS");
-            oxxo.agregarProducto();
+            tiendaPersonal.agregarProducto();
             break;
         case 3:
             system("CLS");
             cout << "Agregar Clientes" << endl;
-            oxxo.agregarCliente();
+            tiendaPersonal.agregarCliente();
             break;
         case 4:
             system("CLS");
             cout << "Comprar Productos" << endl;
-            oxxo.llenarCarrito();
+            tiendaPersonal.llenarCarrito();
+            system("CLS");
+            tiendaPersonal.imprimirTicketCompra();
             break;
         case 5:
             system("CLS");
             cout << "Realizar cierre del dia" << endl;
+            tiendaPersonal.cerrarOperaciones();
             break;
         case 6:
             system("CLS");
@@ -73,16 +74,34 @@ int menu() {
     return 0;
 }
 
+inline bool fileExists(const std::string& name) {
+    ifstream f(name.c_str());
+    return f.good();
+}
+
 int main()
 {
-    /*Producto productoNuevo("001", "manzana", 1, 50.20, 5);
-    Producto productoNuevo2("002", "pera",1,40.20,5);
-    Cliente clienteSergio("sergio01", "sergio", "sergio@gmail.com", "9856031", {}, 0);
-    Tienda oxxo("oxxo5", "Oxxo Beltran Leyva", "Av.Patriotas", 15, 5, { productoNuevo,productoNuevo2 }, { clienteSergio }, 0);
-    oxxo.imprimirTienda();*/
-    menu();
-    
-    
+    string idTienda = "";
+    string nombreDeLaTienda = "";
+    string nombreDelArchivo = "";
+    string direccion = "";
+    int archivoExiste = 0;
+    cout << "Bienvenido al sistema administrativo!" << endl;
+    cout << "Identificacion de sucursal:" << endl;
+    cin >> idTienda;
+    cout << "Nombre de la tienda:" << endl;
+    cin >> nombreDeLaTienda;
+    while (archivoExiste == 0)
+    {
+        cout << "Nombre del archivo omitiendo la terminacion txt:" << endl;
+        cin >> nombreDelArchivo;
+        if(fileExists(nombreDelArchivo+".txt")) {
+            archivoExiste = 1;
+        }
+    }
+    cout << "Direccion:" << endl;
+    cin >> direccion;
+    menu(idTienda,nombreDeLaTienda,nombreDelArchivo+".txt", direccion);
 }
 
 
