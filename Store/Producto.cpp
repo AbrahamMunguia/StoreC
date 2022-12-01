@@ -19,9 +19,7 @@ Producto::Producto() {
 	precioP = 0;
 	cantidad = 0;
 }	
-Producto::~Producto() {
-	std::cout << "Adios producto" << std::endl;
-}
+Producto::~Producto() {}
 
 // Metodo imprimir
 void Producto::imprimir()

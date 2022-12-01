@@ -36,7 +36,8 @@ class Tienda
 		void setCantidadProductosT(int _cantidadProductos);
 		void setCantidadClientesT(int _cantidadClientesT);
 		void setProductos(std::vector<Producto> _productos);
-		void setIngresoDiario(std::vector<Cliente> _clientes);
+		void setClientes(std::vector<Cliente> _clientes);
+		void setIngresoDiario(double _ingresoDiario);
 
 		// CUSTOMS
 		void imprimirTienda();
